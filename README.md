@@ -5,10 +5,11 @@
 
 A Python script to discover and catalog classic Roblox games from 2006-2009 that meet specific criteria.
 
+>[!CAUTION]
+> ## Disclaimer
+> This project is not affiliated with Roblox Corporation. Use at your own risk. Please respect Roblox's terms of service and API usage policies.
+
 ## Features
-> [!IMPORTANT]
-> Identifying private games is still unavailable, while it's in the code it is not properly setting the identity if the game is public or private.
-> a fix is in the works, but the rest of the features work smooth.
 
 - **Vintage Game Detection**: Finds games created between 2006-2009
 - **Activity Filtering**: Only includes games with 1000+ visits
@@ -18,6 +19,9 @@ A Python script to discover and catalog classic Roblox games from 2006-2009 that
   - Detects uncopylocked/copylocked status
 - **Progress Tracking**: Saves scan progress for resuming
 - **Detailed Output**: Generates a formatted text file with game details
+
+> [!IMPORTANT]
+> Identifying private games is still unavailable, while it's in the code it is not properly setting the identity if the game is public or private. The scanning will still work, but it'll read every place as private which is not true.
 
 ## Requirements
 
@@ -49,3 +53,34 @@ RATE_LIMIT_DELAY = 2.0  # Seconds between requests
    ``python place-scraper.py``
 
 3. View results in ``Classic Games List.txt``
+
+## Output Format
+```
+Place ID: 1451
+URL: https://www.roblox.com/games/1451/
+Title: Rocket Mayhem
+Status: Uncopylocked
+Created: 2008-02-26T22:51:20.61Z
+Last Updated: 2012-02-17T13:40:33.783Z
+Visits: 54506
+==================================================
+```
+## Configuration
+
+| Setting  |  Description  | Default Value |
+| :------------ |:---------------| :-----|
+| OUTPUT_FILE   | Output Text File Name | ``Classic Games List.txt`` |
+| START_ID      | Starting Place ID for scanning |   ``1450`` |
+| RATE_LIMIT_DELAY | Delay between API requests (seconds) |    ``2.0`` |
+
+## Contributing
+Contributions are welcome! Please follow these steps:
+
+1. Fork the repository
+2. Create a new branch (``git checkout -b user/YourRepositoryName``)
+3. Commit your changes (``git commit -m 'Add some fixes or features.'``)
+4. Push to the branch (``git push origin user/YourRepositoryName``)
+5. Open a pull request
+
+  ## License
+  Distributed under the MIT License. See ``LICENSE`` for more information.
