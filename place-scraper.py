@@ -7,7 +7,7 @@ from datetime import datetime
 # Configuration
 OUTPUT_FILE = "Classic Games List.txt"
 PROGRESS_FILE = "scan_progress.json"
-USER_AGENT = "Roblox Vintage Game Finder/1.0 (+https://github.com/RaccoonWX/Roblox-Vintage-Game-Finder)"
+USER_AGENT = "Roblox Vintage Game Finder/1.0 (+https://github.com/NokaAngel/Roblox-Vintage-Game-Finder)"
 START_ID = 1450
 RATE_LIMIT_DELAY = 2.0
 # End of Configuration
