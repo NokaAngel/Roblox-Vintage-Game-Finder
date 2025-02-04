@@ -54,15 +54,45 @@ RATE_LIMIT_DELAY = 2.0  # Seconds between requests
 
 3. View results in ``Classic Games List.txt``
 
-## Output Format
+## Output Format Examples
 ```
-Place ID: 1451
-URL: https://www.roblox.com/games/1451/
-Title: Rocket Mayhem
-Status: Uncopylocked
+Place ID: 123456789
+URL: https://www.roblox.com/games/123456789/
+Title: Roblox Vintage Game Finder
+Status: Public | Uncopylocked
 Created: 2008-02-26T22:51:20.61Z
 Last Updated: 2012-02-17T13:40:33.783Z
-Visits: 54506
+Visits: 1234567890
+==================================================
+```
+```
+Place ID: 123456789
+URL: https://www.roblox.com/games/123456789/
+Title: Roblox Vintage Game Finder
+Status: Private | Uncopylocked
+Created: 2008-02-26T22:51:20.61Z
+Last Updated: 2012-02-17T13:40:33.783Z
+Visits: 1234567890
+==================================================
+```
+```
+Place ID: 123456789
+URL: https://www.roblox.com/games/123456789/
+Title: Roblox Vintage Game Finder
+Status: Public | Copylocked
+Created: 2008-02-26T22:51:20.61Z
+Last Updated: 2012-02-17T13:40:33.783Z
+Visits: 1234567890
+==================================================
+```
+```
+Place ID: 123456789
+URL: https://www.roblox.com/games/123456789/
+Title: Roblox Vintage Game Finder
+Status: Private | Copylocked
+Created: 2008-02-26T22:51:20.61Z
+Last Updated: 2012-02-17T13:40:33.783Z
+Visits: 1234567890
 ==================================================
 ```
 ## Configuration
