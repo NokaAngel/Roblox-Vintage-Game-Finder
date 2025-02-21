@@ -7,9 +7,9 @@ from datetime import datetime
 # Configuration
 OUTPUT_FILE = "Classic Games List.txt"
 PROGRESS_FILE = "scan_progress.json"
-USER_AGENT = "Roblox Vintage Game Finder/2.0 (+https://github.com/RaccoonWX/Roblox-Vintage-Game-Finder)"
-START_ID = 1450  # Test with known classic game ID
-RATE_LIMIT_DELAY = 5.0  # Increased delay to prevent rate limiting
+USER_AGENT = "Roblox Vintage Game Finder/2.0 (+https://github.com/NokaAngel/Roblox-Vintage-Game-Finder)"
+START_ID = 1450
+RATE_LIMIT_DELAY = 2.0
 
 session = requests.Session()
 session.headers.update({
@@ -19,6 +19,7 @@ session.headers.update({
 })
 
 def get_universe_id(place_id):
+    """Fetch the universe ID for a given place ID."""
     try:
         response = session.get(
             f"https://apis.roblox.com/universes/v1/places/{place_id}/universe",
@@ -26,65 +27,48 @@ def get_universe_id(place_id):
         )
         if response.status_code == 200:
             return response.json().get("universeId")
+        print(f"Failed to get universe ID for place {place_id}: {response.status_code} {response.text}")
         return None
     except Exception as e:
         print(f"Universe ID error: {str(e)}")
         return None
 
-def get_playability_status(place_id):
-    """Get playability status from multiget-place-details endpoint"""
+def get_game_details(place_id):
+    """Retrieve game information including creator and copy status."""
     try:
-        response = session.post(
-            "https://games.roblox.com/v1/games/multiget-place-details",
-            json={"placeIds": [place_id]},
+        universe_id = get_universe_id(place_id)
+        if not universe_id:
+            return None
+
+        # Get basic game info including creator
+        game_response = session.get(
+            f"https://games.roblox.com/v1/games?universeIds={universe_id}",
             timeout=15
         )
-        if response.status_code == 200:
-            data = response.json()
-            for detail in data.get("placeDetails", []):
-                if str(detail.get("placeId")) == str(place_id):
-                    return {
-                        "isPlayable": detail.get("isPlayable", False),
-                        "reason": detail.get("reasonProhibited", "None")
-                    }
-        return {"isPlayable": False, "reason": "Not Found"}
-    except Exception as e:
-        print(f"Playability check error: {str(e)}")
-        return {"isPlayable": False, "reason": "Error"}
-
-def get_game_details(place_id):
-    try:
-        # First get basic playability status
-        playability = get_playability_status(place_id)
+        if game_response.status_code != 200:
+            print(f"Failed to get game info for universe {universe_id}: {game_response.status_code} {game_response.text}")
+            return None
+            
+        game_data = game_response.json().get("data", [{}])[0]
         
-        # Get universe ID
-        universe_id = get_universe_id(place_id)
+        # Get copy permission status
+        place_response = session.get(
+            f"https://develop.roblox.com/v1/places/{place_id}",
+            timeout=15
+        )
+        if place_response.status_code == 200:
+            place_info = place_response.json()
+            game_data["copyingAllowed"] = place_info.get("copyingAllowed", False)
+        else:
+            game_data["copyingAllowed"] = None  # Default to None if not retrievable
         
-        # Get game info
-        game_data = {"isPlayable": playability["isPlayable"]}
-        
-        if universe_id:
-            # Get detailed game information including copying status
-            game_response = session.get(
-                f"https://games.roblox.com/v2/games?universeIds={universe_id}",
-                timeout=15
-            )
-            if game_response.status_code == 200:
-                game_info = game_response.json().get("data", [{}])[0]
-                game_data.update({
-                    "name": game_info.get("name"),
-                    "created": game_info.get("created"),
-                    "updated": game_info.get("updated"),
-                    "visits": game_info.get("visits", 0),
-                    "copyingAllowed": game_info.get("allowCopying", False)  # Updated field name
-                })
-
         return game_data
     except Exception as e:
         print(f"Game detail error: {str(e)}")
         return None
 
 def meets_criteria(game_data):
+    """Check if the game meets the vintage criteria."""
     try:
         created = datetime.fromisoformat(game_data["created"].rstrip("Z"))
         updated = datetime.fromisoformat(game_data["updated"].rstrip("Z"))
@@ -96,24 +80,12 @@ def meets_criteria(game_data):
     except KeyError:
         return False
 
-def get_access_status(game_data):
-    """Determine game accessibility status with detailed reasons"""
-    status = []
-    
-    if game_data.get("isPlayable", False):
-        status.append("Public")
-    else:
-        reason = game_data.get("reason", "Unknown")
-        status.append(f"Private ({reason})")
-    
-    if "allowCopying" in game_data:
-        status.append("Uncopylocked" if game_data["allowCopying"] else "Copylocked")
-    else:
-        status.append("Copy Status Unknown")
-        
-    return " | ".join(status)
+def get_copy_status(game_data):
+    """Determine game copy status (copylocked or uncopylocked)."""
+    return "Uncopylocked" if game_data.get("copyingAllowed", False) else "Copylocked"
 
 def save_progress(current_id, found_ids):
+    """Save the current scan progress to a JSON file."""
     with open(PROGRESS_FILE, "w") as f:
         json.dump({
             "current_id": current_id,
@@ -121,18 +93,22 @@ def save_progress(current_id, found_ids):
         }, f)
 
 def load_progress():
+    """Load the scan progress from a JSON file, or return default values."""
     if os.path.exists(PROGRESS_FILE):
         with open(PROGRESS_FILE, "r") as f:
             return json.load(f)
     return {"current_id": START_ID, "found_ids": []}
 
 def save_game_entry(place_id, game_data):
-    access_status = get_access_status(game_data)
+    """Save a game entry to the output file with creator information."""
+    copy_status = get_copy_status(game_data)
+    creator_name = game_data.get("creator", {}).get("name", "Unknown")
     
     entry = f"""Place ID: {place_id}
 URL: https://www.roblox.com/games/{place_id}/
 Title: {game_data.get('name', 'N/A')}
-Status: {access_status}
+Creator: {creator_name}
+Copy Status: {copy_status}
 Created: {game_data.get('created', 'N/A')}
 Last Updated: {game_data.get('updated', 'N/A')}
 Visits: {game_data.get('visits', 'N/A')}
@@ -142,6 +118,7 @@ Visits: {game_data.get('visits', 'N/A')}
         f.write(entry)
 
 def main():
+    """Main function to run the vintage game finder."""
     progress = load_progress()
     current_id = progress["current_id"]
     found_ids = progress["found_ids"]
@@ -154,10 +131,12 @@ def main():
             
             if game_data and meets_criteria(game_data):
                 found_ids.append(current_id)
-                access_status = get_access_status(game_data)
+                copy_status = get_copy_status(game_data)
+                creator_name = game_data.get("creator", {}).get("name", "Unknown")
                 save_game_entry(current_id, game_data)
-                print(f"\nFound: {game_data.get('name', 'Unknown')} (ID: {current_id})")
-                print(f"   Status: {access_status}")
+                print(f"\n Found: {game_data.get('name', 'Unknown')} (ID: {current_id})")
+                print(f"   Creator: {creator_name}")
+                print(f"   Copy Status: {copy_status}")
                 print(f"   Visits: {game_data.get('visits', 'N/A')}")
                 print(f"   Last Updated: {game_data.get('updated', 'N/A')}")
                 
@@ -166,7 +145,7 @@ def main():
             time.sleep(RATE_LIMIT_DELAY)
             
     except KeyboardInterrupt:
-        print("\n\nScan paused. Progress saved.")
+        print("\n\n Scan paused. Progress saved.")
     finally:
         save_progress(current_id, found_ids)
 
