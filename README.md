@@ -15,13 +15,10 @@ A Python script to discover and catalog classic Roblox games from 2006-2009 that
 - **Activity Filtering**: Only includes games with 1000+ visits
 - **Inactivity Check**: Filters games not updated in 3+ years
 - **Access Status**:
-  -  Identifies private games
+  - Identifies private games **(Due to APIs, this feature does not work and will be removed in the next update.)**
   - Detects uncopylocked/copylocked status
 - **Progress Tracking**: Saves scan progress for resuming
 - **Detailed Output**: Generates a formatted text file with game details
-
-> [!IMPORTANT]
-> Identifying private games is still unavailable, while it's in the code it is not properly setting the identity if the game is public or private. The scanning will still work, but it'll read every place as private which is not true.
 
 ## Requirements
 
