@@ -18,7 +18,6 @@ A multithreaded Python script to discover vintage Roblox games from 2006–2009 
   - Created between 2006–2009
   - Not updated in over 3 years
   - At least 1000+ visits
-  - Must be uncopylocked
 - **Game Details**:
   - Place ID, title, creation and update timestamps
   - Visit count
