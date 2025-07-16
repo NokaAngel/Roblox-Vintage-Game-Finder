@@ -3,42 +3,28 @@
 ![Python Version](https://img.shields.io/badge/python-3.8%2B-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
+A Python script that scans for classic Roblox games from 2006-2009 based on activity, visit count, and other metadata.
 
-A multithreaded Python script to discover vintage Roblox games from 2006–2009 that meet specific criteria.
-
-> [!NOTE]
-> **Disclaimer:** This project is not affiliated with Roblox Corporation. Use at your own risk. Please respect Roblox's terms of service and API usage guidelines.
+> [!WARNING]
+> **Disclaimer** This project is not affiliated with Roblox Corporation. Use responsibly and respect Roblox's terms of service.
 
 ---
 
 ## Features
 
-- **Multithreaded Scanning**: Faster scanning with configurable worker threads
-- **Vintage Game Filtering**:
-  - Created between 2006–2009
-  - Not updated in over 3 years
-  - At least 1000+ visits
-- **Game Details**:
-  - Place ID, title, creation and update timestamps
-  - Visit count
-  - Copylocked status
-  - Game Pass names
-  - Thumbnail URL
-- **Rate Limited Requests**: Follows API rate limits using a locking mechanism
-- **Progress Saving**: Saves where it left off so you can resume scanning
+- **Vintage Game Detection**: Targets games created between 2006 and 2009
+- **Visit and Inactivity Filtering**: Requires 1,000+ visits and no updates for 3+ years
+- **Game Metadata Extraction**: Pulls title, visit count, creation/update dates, thumbnails, and game passes
+- **Concurrency Support**: Uses multithreading with rate limiting to scan faster
+- **Progress Tracking**: Saves the last scanned ID and found games
+- **Graceful Exit**: Handles Ctrl+C interrupts, waits for workers to complete, and saves progress cleanly
 
 ---
 
 ## Requirements
 
 - Python 3.8+
-- `requests` library
-
-Install it via:
-
-```bash
-pip install requests
-```
+- `requests` library (install via `pip install requests`)
 
 ---
 
@@ -47,43 +33,43 @@ pip install requests
 ```bash
 git clone https://github.com/NokaAngel/Roblox-Vintage-Game-Finder.git
 cd Roblox-Vintage-Game-Finder
+pip install requests
 ```
 
 ---
 
 ## Usage
 
-Edit config values at the top of `game-scraper.py` if needed:
+Edit the top of the script if needed:
 
 ```python
-OUTPUT_FILE = "Enhanced Games List.txt"
 START_ID = 1450
 RATE_LIMIT_DELAY = 2.0
 MAX_WORKERS = 5
 ```
 
-Run the script:
+Then run it:
 
 ```bash
-python game-scraper.py
+python place-scraper.py
 ```
 
-Output will be written to: `Enhanced Games List.txt`
+Output is saved to `Enhanced Games List.txt`
 
 ---
 
-## Sample Output
+## Output Format Example
 
 ```
-Place ID: 1451
-URL: https://www.roblox.com/games/1451/
-Title: Rocket Mayhem
+Place ID: 12345678
+URL: https://www.roblox.com/games/12345678/
+Title: Classic Tycoon
 Status: Uncopylocked
-Created: 2007-06-04T16:22:19.223Z
-Updated: 2011-03-12T09:11:33.390Z
-Visits: 12983
-Thumbnail: https://tr.rbxcdn.com/...jpg
-Game Passes: VIP Room, Gravity Coil
+Created: 2008-03-04T19:20:31.563Z
+Updated: 2011-05-12T08:34:19.267Z
+Visits: 123456
+Thumbnail: https://.../thumbnail.png
+Game Passes: VIP Shirt, Golden Sword
 ==================================================
 ```
 
@@ -91,27 +77,25 @@ Game Passes: VIP Room, Gravity Coil
 
 ## Configuration Options
 
-| Setting            | Description                                | Default                 |
-| ------------------ | ------------------------------------------ | ----------------------- |
-| OUTPUT\_FILE       | File name to write results to              | Enhanced Games List.txt |
-| START\_ID          | Initial Place ID to begin scan             | 1450                    |
-| RATE\_LIMIT\_DELAY | Seconds between each API call (per thread) | 2.0                     |
-| MAX\_WORKERS       | Number of concurrent threads to scan       | 5                       |
+| Setting            | Description                                    | Default                   |
+| ------------------ | ---------------------------------------------- | ------------------------- |
+| `OUTPUT_FILE`      | Output file path                               | `Enhanced Games List.txt` |
+| `START_ID`         | Starting Place ID                              | `1450`                    |
+| `RATE_LIMIT_DELAY` | Delay between requests per thread (in seconds) | `2.0`                     |
+| `MAX_WORKERS`      | Number of concurrent threads                   | `5`                       |
 
 ---
 
 ## Contributing
 
-1. Fork this repository
-2. Create a new branch: `git checkout -b user/YourFeature`
-3. Commit your changes: `git commit -m "Add new feature"`
-4. Push your branch: `git push origin user/YourFeature`
-5. Submit a Pull Request
+1. Fork the repo
+2. Create a branch (`git checkout -b feature-branch`)
+3. Commit your changes (`git commit -m 'Add feature'`)
+4. Push (`git push origin feature-branch`)
+5. Open a pull request
 
 ---
 
 ## License
 
-MIT License. See the `LICENSE` file for details.
-
-
+MIT License. See `LICENSE` file for full terms.
