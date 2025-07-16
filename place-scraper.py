@@ -5,6 +5,8 @@ import os
 from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from threading import Lock
+import signal
+import sys
 
 # Configuration
 OUTPUT_FILE = "Enhanced Games List.txt"
@@ -23,6 +25,7 @@ session.headers.update({
 
 rate_limit_lock = Lock()
 last_request_time = 0.0
+interrupted = False
 
 def rate_limited_request(func, *args, **kwargs):
     global last_request_time
@@ -100,10 +103,6 @@ def meets_criteria(game_data):
         created = datetime.fromisoformat(game_data.get("created", "").rstrip("Z"))
         updated = datetime.fromisoformat(game_data.get("updated", "").rstrip("Z"))
         visits = game_data.get("visits", 0)
-        copying_allowed = game_data.get("copyingAllowed", False)
-
-        if not copying_allowed:
-            return False
 
         return (2006 <= created.year <= 2009 and (datetime.now().year - updated.year) >= 3 and visits >= 1000)
     except:
@@ -133,16 +132,6 @@ Game Passes: {', '.join([gp.get('name') for gp in game_data.get('gamepasses', []
     with open(OUTPUT_FILE, "a", encoding="utf-8") as f:
         f.write(entry)
 
-def scan_range(start_id, count):
-    found = []
-    with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
-        futures = {executor.submit(process_id, pid): pid for pid in range(start_id, start_id + count)}
-        for future in as_completed(futures):
-            result = future.result()
-            if result:
-                found.append(result)
-    return found
-
 def process_id(place_id):
     print(f"[Worker] Scanning Place ID: {place_id}")
     game_data = get_game_details(place_id)
@@ -152,20 +141,34 @@ def process_id(place_id):
         return place_id
     return None
 
+def signal_handler(sig, frame):
+    global interrupted
+    print("\nSession ending. Waiting for workers to finish...")
+    interrupted = True
+
 def main():
+    signal.signal(signal.SIGINT, signal_handler)
+
     progress = load_progress()
     current_id = progress["current_id"]
     found_ids = progress["found_ids"]
 
     try:
-        while True:
-            new_ids = scan_range(current_id, MAX_WORKERS)
-            found_ids.extend(filter(None, new_ids))
+        while not interrupted:
+            new_ids = []
+            with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
+                futures = {executor.submit(process_id, pid): pid for pid in range(current_id, current_id + MAX_WORKERS)}
+                for future in as_completed(futures):
+                    result = future.result()
+                    if result:
+                        new_ids.append(result)
+            found_ids.extend(new_ids)
             current_id += MAX_WORKERS
             save_progress(current_id, found_ids)
-    except KeyboardInterrupt:
-        print("\nScan interrupted. Progress saved.")
+
+    finally:
         save_progress(current_id, found_ids)
+        print("Saved current position, and found IDs.")
 
 if __name__ == "__main__":
     if not os.path.exists(OUTPUT_FILE):
