@@ -1,9 +1,13 @@
+> [!IMPORTANT]
+> Due to Roblox's new age guidelines for games, majority of these classic games that would be found by this script, are no longer playable making Roblox Vintage Game Finder pointless at this point.
+
 # Roblox Vintage Game Finder
 
 ![Python Version](https://img.shields.io/badge/python-3.8%2B-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 A Python script that scans for classic Roblox games from 2006-2009 based on activity, visit count, and other metadata.
+
 
 > [!WARNING]
 > **Disclaimer** This project is not affiliated with Roblox Corporation. Use responsibly and respect Roblox's terms of service.
