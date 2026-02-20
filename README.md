@@ -1,5 +1,5 @@
 > [!IMPORTANT]
-> Due to Roblox's new age guidelines for games, majority of these classic games that would be found by this script, are no longer playable making Roblox Vintage Game Finder pointless at this point.
+> Due to Roblox’s updated age guidelines and content restrictions, many of the classic games that this script was designed to discover are no longer accessible or playable. As a result, Roblox Vintage Game Finder is currently non-functional for its original purpose.
 
 # Roblox Vintage Game Finder
 
